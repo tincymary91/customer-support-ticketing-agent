@@ -1,0 +1,13 @@
+class ServiceNowMCP:
+
+    def create_incident(self,
+                        category,
+                        priority,
+                        description):
+
+        return {
+            "incident_id": "INC10001",
+            "category": category,
+            "priority": priority,
+            "status": "Created"
+        }

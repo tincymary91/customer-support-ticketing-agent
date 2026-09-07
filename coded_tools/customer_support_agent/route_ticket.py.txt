@@ -1,0 +1,15 @@
+def route_ticket(category: str):
+
+    routing_table = {
+        "Billing": "Billing Support",
+        "Technical": "L2 Technical Support",
+        "Account": "Account Team",
+        "General Inquiry": "Customer Care"
+    }
+
+    return {
+        "queue": routing_table.get(
+            category,
+            "Customer Care"
+        )
+    }

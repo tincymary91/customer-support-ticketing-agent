@@ -1,0 +1,22 @@
+def classify_ticket(description: str):
+
+    description = description.lower()
+
+    if "charged" in description or "refund" in description:
+        category = "Billing"
+    elif "password" in description:
+        category = "Account"
+    elif "down" in description or "error" in description:
+        category = "Technical"
+    else:
+        category = "General Inquiry"
+
+    priority = "Medium"
+
+    if "production down" in description:
+        priority = "Critical"
+
+    return {
+        "category": category,
+        "priority": priority
+    }

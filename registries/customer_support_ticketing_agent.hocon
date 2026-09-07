@@ -1,0 +1,266 @@
+{
+    include "registries/aaosa.hocon",
+
+    "metadata": {
+        "description": "Multi-agent customer support ticket routing network."
+        "tags": [
+            "customer-support"
+            "ticket-routing"
+            "AAOSA"
+        ]
+        "sample_queries": [
+            "My production account is locked and business operations are blocked.",
+            "Need a copy of last month's invoice.",
+            "Application is unavailable for all users."
+        ]
+    },
+
+    include "config/llm_config.hocon",
+
+    "tools": [
+
+        {
+            "name": "CustomerSupportCoordinator",
+
+            "function": {
+                "description": "Coordinates customer support ticket processing and orchestrates specialized support agents."
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "query": {
+                            "type": "string",
+                            "description": "Customer support request."
+                        }
+                    },
+                    "required": ["query"]
+                }
+            },
+
+            "instructions": """
+You are the Customer Support Coordinator Agent.
+
+You are the single point of contact for the customer.
+
+Responsibilities:
+- Receive customer requests.
+- Coordinate ticket intake.
+- Coordinate classification.
+- Coordinate routing.
+- Coordinate escalation when necessary.
+- Coordinate customer communication.
+
+Never expose internal agents.
+Never describe workflow internals to the customer.
+
+Always coordinate specialists and provide a final consolidated result.
+""" ${aaosa_instructions},
+
+            "tools": [
+                "ticket_intake_agent"
+                "classification_agent"
+                "routing_agent"
+                "escalation_agent"
+                "notification_agent"
+            ]
+        },
+
+        {
+            "name": "ticket_intake_agent",
+
+            "function": ${aaosa_call}{
+                "description": "Validates customer information and prepares tickets for support processing."
+            },
+
+            "instructions": """
+Validate customer information.
+
+Responsibilities:
+- Validate customer identity.
+- Validate completeness of support requests.
+- Check customer records.
+- Collect missing details.
+
+Use:
+- validate_customer
+- customer_db_mcp
+
+Forward validated ticket information.
+""" ${aaosa_instructions},
+
+            "tools": [
+                "validate_customer"
+                "customer_db_mcp"
+            ]
+        },
+
+        {
+            "name": "classification_agent",
+
+            "function": ${aaosa_call}{
+                "description": "Classifies support requests and assigns priority."
+            },
+
+            "instructions": """
+Determine ticket category and priority.
+
+Categories:
+- Billing
+- Technical
+- Account
+- General Inquiry
+
+Priorities:
+- Low
+- Medium
+- High
+- Urgent
+
+Use:
+- classify_ticket
+- knowledge_base_mcp
+
+Return category and priority.
+""" ${aaosa_instructions},
+
+            "tools": [
+                "classify_ticket"
+                "knowledge_base_mcp"
+            ]
+        },
+
+        {
+            "name": "routing_agent",
+
+            "function": ${aaosa_call}{
+                "description": "Routes tickets to the correct support queue and determines escalation requirements."
+            },
+
+            "instructions": """
+Route support requests to the appropriate support team.
+
+Responsibilities:
+- Assign support queue.
+- Create or update incident records.
+- Determine escalation needs.
+
+Escalate:
+- Production outages
+- Business-critical incidents
+- High priority requests
+- Urgent priority requests
+
+Use:
+- route_ticket
+- servicenow_mcp
+""" ${aaosa_instructions},
+
+            "tools": [
+                "route_ticket"
+                "servicenow_mcp"
+                "escalation_agent"
+                "notification_agent"
+            ]
+        },
+
+        {
+            "name": "escalation_agent",
+
+            "function": ${aaosa_call}{
+                "description": "Handles urgent and high priority support incidents."
+            },
+
+            "instructions": """
+Apply escalation procedures.
+
+Responsibilities:
+- Apply SLA policies.
+- Assign specialized support personnel.
+- Update incident records.
+- Escalate business-critical issues.
+
+Use:
+- escalate_ticket
+- servicenow_mcp
+""" ${aaosa_instructions},
+
+            "tools": [
+                "escalate_ticket"
+                "servicenow_mcp"
+                "notification_agent"
+            ]
+        },
+
+        {
+            "name": "notification_agent",
+
+            "function": ${aaosa_call}{
+                "description": "Sends customer notifications regarding ticket status."
+            },
+
+            "instructions": """
+Notify customers regarding:
+- Ticket creation
+- Classification
+- Routing
+- Escalation
+- Resolution
+
+Use:
+- send_notification
+- email_mcp
+
+Provide customer-ready communication.
+""" ${aaosa_instructions},
+
+            "tools": [
+                "send_notification"
+                "email_mcp"
+            ]
+        },
+
+        {
+            "name": "validate_customer",
+            "class": "coded_tools/customer_support_agent/validate_customer.py"
+        },
+
+        {
+            "name": "classify_ticket",
+            "class": "coded_tools/customer_support_agent/classify_ticket.py"
+        },
+
+        {
+            "name": "route_ticket",
+            "class": "coded_tools/customer_support_agent/route_ticket.py"
+        },
+
+        {
+            "name": "escalate_ticket",
+            "class": "coded_tools/customer_support_agent/escalate_ticket.py"
+        },
+
+        {
+            "name": "send_notification",
+            "class": "coded_tools/customer_support_agent/send_notification.py"
+        },
+
+        {
+            "name": "customer_db_mcp",
+            "mcp": "mcp/customer_support_agent/customer_db_mcp.hocon"
+        },
+
+        {
+            "name": "knowledge_base_mcp",
+            "mcp": "mcp/customer_support_agent/knowledge_base_mcp.hocon"
+        },
+
+        {
+            "name": "servicenow_mcp",
+            "mcp": "mcp/customer_support_agent/servicenow_mcp.hocon"
+        },
+
+        {
+            "name": "email_mcp",
+            "mcp": "mcp/customer_support_agent/email_mcp.hocon"
+        }
+    ]
+}

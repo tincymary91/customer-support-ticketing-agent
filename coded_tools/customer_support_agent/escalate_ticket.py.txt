@@ -1,0 +1,12 @@
+def escalate_ticket(priority: str):
+
+    if priority in ["High", "Critical"]:
+        return {
+            "escalated": True,
+            "escalation_team": "Incident Management"
+        }
+
+    return {
+        "escalated": False
+    }
+``
