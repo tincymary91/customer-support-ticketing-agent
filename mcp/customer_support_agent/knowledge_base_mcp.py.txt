@@ -1,0 +1,9 @@
+class KnowledgeBaseMCP:
+
+    def search_article(self, keyword):
+
+        return {
+            "article_id": "KB001",
+            "title": "Troubleshooting Login Issues",
+            "matched_keyword": keyword
+        }

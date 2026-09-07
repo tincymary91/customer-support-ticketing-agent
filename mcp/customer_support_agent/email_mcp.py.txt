@@ -1,0 +1,12 @@
+class EmailMCP:
+
+    def send_email(self,
+                   recipient,
+                   subject,
+                   body):
+
+        return {
+            "recipient": recipient,
+            "subject": subject,
+            "status": "Sent"
+        }

@@ -1,0 +1,7 @@
+def send_notification(customer_email, message):
+
+    return {
+        "sent": True,
+        "email": customer_email,
+        "message": message
+    }

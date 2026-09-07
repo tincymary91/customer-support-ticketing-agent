@@ -1,0 +1,10 @@
+class CustomerDBMCP:
+
+    def get_customer(self, customer_id):
+
+        return {
+            "customer_id": customer_id,
+            "name": "John Doe",
+            "tier": "Premium",
+            "status": "Active"
+        }
